@@ -1,102 +1,158 @@
-class Figura {
-   constructor(x, y, alto, ancho, vx, vy) {
-    this.posicion = createVector(x,y);
-    this.alto = alto;
-    this.ancho = ancho;
-    this.fillred = 255;
-    this.fillgreen = 87;
-    this.fillblue = 57;
-    this.velocidad = createVector(vx,vy);
-  }
-  update()
-  {
-      if (this.posicion.x + this.ancho >= 400)
-        {  
-          let valor = random(3); 
-          this.velocidad.x = this.velocidad.x * -valor;
-         this.velocidad.y = this.velocidad.y * -valor;
-        }
-      this.posicion.add(this.velocidad);
-  }
-  
-}
-
-class Rectangulo extends Figura{
-  constructor(x, y, alto, ancho, vx, vy) {
-      super(x, y, alto, ancho, vx, vy);
-  }
-  
-draw()
-  {
-fill(this.fillred,this.fillgreen,this.fillblue);
-rect(this.posicion.x,this.posicion.y,this.alto,this.ancho);
-  }
-}
-
-class Elipse extends Figura{
-  constructor(x, y, alto, ancho, vx, vy) {
-      super(x, y, alto, ancho, vx, vy);
-  }
-  
-draw()
-  {
-fill(this.fillred,this.fillgreen,this.fillblue);
-ellipse(this.posicion.x,this.posicion.y,this.alto,this.ancho);
-  }
-}
-
-var figuras = [];
-var dibujando = 'circulo';
-var btnCirculo = null;
-var btnRectangulo = null;
-
-
-function mouseClicked() {
-  // Se crea un objeto según la opción actual
-if (mouseY > 25)
-  {
-  if (dibujando == 'circulo')
-    figuras.push(new Elipse(mouseX,mouseY,20,20,3,1));
-  else if (dibujando == 'rectangulo')
-    figuras.push(new Rectangulo(mouseX,mouseY,20,20,2,1));
-  }
-
-  return false;
-}
-
 function setup() {
   createCanvas(400, 400);
-  
-  btnCirculo = createButton('Circulo');
-  btnCirculo.position(0, 0);
-  btnCirculo.mousePressed(changeCirculo);
-  btnCirculo.style( 'background-color','#cccccc');
-  
-  btnRectangulo = createButton('Rectangulo');
-  btnRectangulo.position(75, 0);
-  btnRectangulo.mousePressed(changeRectangulo);
 }
 
-function changeCirculo()
-   {
-     btnCirculo.style( 'background-color','#cccccc');
-     btnRectangulo.style( 'background-color','#f0f0f0');
-     dibujando = 'circulo';
-   }
-function changeRectangulo()
-   {
-     btnRectangulo.style( 'background-color','#cccccc');
-     btnCirculo.style( 'background-color','#f0f0f0');
-     dibujando = 'rectangulo';
-   }
+class Figura1 {
+  constructor(x, y, alto, ancho, vx, vy) {
+    this.posicion = createVector(x, y);
+    this.alto = alto;
+    this.ancho = ancho;
+    this.color = color(255, 87, 57);
+    this.velocidad = createVector(vx, vy);
+    
+  }
+  
+  dibujar() {
+    fill(this.color);
+    rect(this.posicion.x,this.posicion.y,this.alto,this.ancho);
+  
+  }
+}
 
+
+class Figura2 {
+  constructor(x, y, alto, ancho, vx, vy) {
+    this.posicion = createVector(x, y);
+    this.alto = alto;
+    this.ancho = ancho;
+    this.color = color(255, 87, 57);
+    this.velocidad = createVector(vx, vy);
+    
+  }
+  
+  dibujar() {
+    fill(this.color);
+    ellipse(this.posicion.x,this.posicion.y,this.alto,this.ancho);
+  
+  }
+}
+
+
+
+class Rectangulo extends Figura1 {
+  constructor(x, y, alto, ancho, vx, vy) {
+    super(x, y, alto, ancho, vx, vy);
+  }
+
+  actualizar() {
+    // Mover el rectángulo con las teclas WASD
+    if (keyIsDown(87)) { // tecla W
+      if (this.posicion.y > 0) {
+        this.posicion.y -= 5;
+      }
+    }
+    if (keyIsDown(83)) { // tecla A
+      if (this.posicion.y < height - this.alto) {
+        this.posicion.y += 5;
+      }
+    }
+    if (keyIsDown(65)) { // tecla S
+      if (this.posicion.x > 0) {
+        this.posicion.x -= 5;
+      }
+    }
+    if (keyIsDown(68)) { // tecla D
+      if (this.posicion.x < width - this.ancho) {
+        this.posicion.x += 5;
+      }
+    }
+
+    // Ajustar la posición del rectángulo si se salió del canvas
+    if (this.posicion.y < 0) {
+      this.posicion.y = 0;
+    }
+    if (this.posicion.y + this.alto > height) {
+      this.posicion.y = height - this.alto;
+    }
+    if (this.posicion.x < 0) {
+      this.posicion.x = 0;
+    }
+    if (this.posicion.x + this.ancho > width) {
+      this.posicion.x = width - this.ancho;
+    }
+  }
+
+  dibujar() {
+    fill(this.color);
+    rect(this.posicion.x, this.posicion.y, this.ancho, this.alto);
+  }
+
+  colision(circulo) {
+    // calcular la distancia entre el centro del círculo y el rectángulo
+    let dx = circulo.posicion.x - max(this.posicion.x, min(circulo.posicion.x, this.posicion.x + this.ancho));
+    let dy = circulo.posicion.y - max(this.posicion.y, min(circulo.posicion.y, this.posicion.y + this.alto));
+    let distancia = sqrt(dx * dx + dy * dy);
+
+    // si la distancia es menor o igual al radio del círculo, hay colisión
+    if (distancia <= circulo.alto / 2) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
+
+
+class circulo extends Figura2 {
+  constructor(x, y, alto, ancho, vx, vy) {
+    super(x, y, alto, ancho, vx, vy);
+    
+  }
  
+  actualizar() {
+  this.posicion.add(this.velocidad);
+    
+    if (this.posicion.x - this.ancho / 2 < 0 || this.posicion.x + this.ancho / 2 > width) {
+  // Cambiar la dirección del movimiento en el eje x
+  this.velocidad.x *= -1;
+}
+if (this.posicion.y - this.alto / 2 < 0 || this.posicion.y + this.alto / 2 > height) {
+  // Cambiar la dirección del movimiento en el eje y
+  this.velocidad.y *= -1;
+}
+}
+  
+ dibujar() {
+    fill(this.color);
+    ellipse(this.posicion.x, this.posicion.y, this.alto, this.ancho);
+
+    // Comprobar si hay una colisión con el rectángulo
+    if (miRectangulo.colision(this)) {
+      // Cambiar la dirección del movimiento del círculo
+      this.velocidad.mult(-5, 1);
+
+      // Cambiar la velocidad a valores aleatorios
+      this.velocidad.x = random(-5, 5);
+      this.velocidad.y = random(5, 10);
+    }
+  }
+}
+
+
+
+function setup() 
+{
+  createCanvas(400, 400);
+  miRectangulo = new Rectangulo(175 , 25 ,20, 65, 0, 0);  
+  micirculo = new circulo(175 , 180 ,20, 20, 0, -1); 
+}
 
 function draw() {
   background(220);
-  figuras.forEach((fig) => 
-   {
-    fig.draw();
-    fig.update();
-   });
+  
+  micirculo.dibujar();
+ micirculo.actualizar(); 
+  
+  miRectangulo.actualizar();
+  miRectangulo.dibujar();
 }
